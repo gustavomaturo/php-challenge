@@ -47,7 +47,7 @@ class ShipController extends Controller
     
     public function create(Request $request) {
         $message = 'Operation succeeded';
-        $code = 200;
+        $code = 201;
         
         try{
             
