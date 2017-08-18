@@ -11,9 +11,9 @@
 - Clone the repository;
 - Enter the folder via the terminal;
 - Download depedencies **composer install**;
-- Run script databse database/challenge.sql
+- Run script databse **database/challenge.sql**
 - Run the project **php artisan serve**;
-
+- Enter the folder **upload** for examples file upload
 
 # Endpoints - People
 
