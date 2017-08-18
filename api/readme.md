@@ -9,7 +9,7 @@
 
 # Project Execution
 
-- Install [Composer](https://getcomposer.org/) e [Laravel](https://laravel.com/);
+- Install [Composer](https://getcomposer.org/), [Laravel](https://laravel.com/) and [XAMPP](https://www.apachefriends.org/pt_br/index.html) (MySQL);
 - Clone the repository;
 - Enter the folder via the terminal;
 - Download depedencies **composer install**;
