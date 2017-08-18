@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Models\Phone;
 use JsonSerializable;
+use Validator;
 
 /**
  * @ORM\Entity
@@ -29,10 +30,11 @@ class Person implements JsonSerializable {
     */
     protected $phones;
     
-    function __construct(int $id, string $name) {
+    function __construct(int $id, string $name) { 
         $this->id = $id;
         $this->name = $name;
         $this->phones = new ArrayCollection;
+        $this->validate();
     }
     
     public function getId() {
@@ -59,5 +61,21 @@ class Person implements JsonSerializable {
             'name'=> $this->name,
             'phones'=> $this->phones->toArray()
         );
+    }
+    
+    public function validate() {
+        $validator = Validator::make(
+            [
+                'id' => $this->id,
+                'name' => $this->name,
+            ],
+            [
+                'id' => 'required',
+                'name' => 'required'
+            ]);
+        
+        if($validator->fails()) {
+             throw new \Exception('Invalid file');
+        }
     }
 }

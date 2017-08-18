@@ -48,12 +48,12 @@ class PeopleController extends Controller
     public function create(Request $request) {
         $message = 'Operation succeeded';
         $code = 200;
-        
+
         try{
             libxml_use_internal_errors(true); 
             $people = simplexml_load_string(File::get($request->file('file')->path()));
-
             if($people) {
+                $this->entityManager->getConnection()->beginTransaction();
                 foreach($people as $person) {
 
                     $personModel = new Person((int)$person->personid, $person->personname);
@@ -61,16 +61,23 @@ class PeopleController extends Controller
                     foreach((array)$person->phones->phone as $number) {
                         $personModel->addPhone(new Phone($number));
                     }
-
+                    
                     EntityManager::persist($personModel);
                     EntityManager::flush();
-
                 }
+                $this->entityManager->getConnection()->commit();
             } else {
                 throw new Exception('Invalid file');
             }
         
-        } catch(Exception $e) {
+        } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            $message = "Register already exists";
+            $this->entityManager->getConnection()->rollBack();
+            $code = 400;
+        }  catch(\Doctrine\DBAL\DBALException $e) {
+            $message = $e->getMessage();
+            $code = 500;
+        }  catch(Exception $e) {
             $message = $e->getMessage();
             $code = 400;
         }

@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Models\ItemOrder;
 use JsonSerializable;
+use Validator;
 
 /**
  * @ORM\Entity
@@ -110,6 +111,23 @@ class ShipOrder implements JsonSerializable {
         $this->itemOrder->add($itemOrder);
     }
     
+    public function addItemOrderXML($item) {
+        
+        if(!is_array($item)) {
+            $item = array($item);
+        }
+        
+        foreach($item as $obj) {
+            $itemOrder = new ItemOrder();
+            $itemOrder->setTitle($obj->title);
+            $itemOrder->setNote($obj->note);
+            $itemOrder->setQuantity((int)$obj->quantity);
+            $itemOrder->setPrice((float)$obj->price);
+
+            $this->addItemOrder($itemOrder);
+        }
+    }
+    
     public function jsonSerialize()
     {
         return array(
@@ -121,5 +139,29 @@ class ShipOrder implements JsonSerializable {
             'country' => $this->country,
             'itemOrder' => $this->itemOrder->toArray()
         );
+    }
+    
+    public function validate($shipOrder) {
+        $validator = Validator::make(
+            [
+                'orderid' => (int)$shipOrder->orderid,
+                'orderperson' => (int)$shipOrder->orderperson,
+                'name' => $shipOrder->shipto->name,
+                'address' => $shipOrder->shipto->address,
+                'city' => $shipOrder->shipto->city,
+                'country' => $shipOrder->shipto->country
+            ],
+            [
+                'orderid' => 'required',
+                'orderperson' => 'required',
+                'name' => 'required',
+                'address' => 'required',
+                'city' => 'required',
+                'country' => 'required'
+            ]);
+        
+        if($validator->fails()) {
+             throw new \Exception('Invalid file');
+        }
     }
 }

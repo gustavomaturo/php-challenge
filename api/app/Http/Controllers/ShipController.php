@@ -55,9 +55,13 @@ class ShipController extends Controller
             $shipOrders = simplexml_load_string(File::get($request->file('file')->path()));
 
             if($shipOrders) {
+                $this->entityManager->getConnection()->beginTransaction();
+                
                 foreach($shipOrders as $shipOrder) {
 
                     $shipOrderModel = new ShipOrder();
+                    $shipOrderModel->validate($shipOrder);
+                    
                     $shipOrderModel->setId((int)$shipOrder->orderid);
                     $shipOrderModel->setPersonOrder((int)$shipOrder->orderperson);
                     $shipOrderModel->setName($shipOrder->shipto->name);
@@ -66,34 +70,28 @@ class ShipController extends Controller
                     $shipOrderModel->setCountry($shipOrder->shipto->country);
 
                     foreach((array)$shipOrder->items as $item) {
-                        if(!is_array($item)) {
-                            $item = array($item);
-                        }
-
-                        foreach($item as $obj) {
-                            $itemOrder = new ItemOrder();
-                            $itemOrder->setTitle($obj->title);
-                            $itemOrder->setNote($obj->note);
-                            $itemOrder->setQuantity((int)$obj->quantity);
-                            $itemOrder->setPrice((float)$obj->price);
-
-                            $shipOrderModel->addItemOrder($itemOrder);
-                        }
+                        $shipOrderModel->addItemOrderXML($item); 
                     }
-
 
                     EntityManager::persist($shipOrderModel);
                     EntityManager::flush();
-
                 }
+                $this->entityManager->getConnection()->commit();
             } else {
                 throw new Exception('Invalid file');
             }
             
-        } catch(Exception $e) {
+        } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            $message = "Register already exists";
+            $this->entityManager->getConnection()->rollBack();
+            $code = 400;
+        }  catch(\Doctrine\DBAL\DBALException $e) {
+            $message = $e->getMessage();
+            $code = 500;
+        }  catch(Exception $e) {
             $message = $e->getMessage();
             $code = 400;
-        } 
+        }
         return response()->json(["message" => $message],$code);
     }
 }
