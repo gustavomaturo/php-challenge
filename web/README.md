@@ -8,7 +8,7 @@
 
 # Project Execution
 
-- install [NodeJS](https://nodejs.org/en/) e [NPM](https://www.npmjs.com/);
+- install [NodeJS](https://nodejs.org/en/) and [NPM](https://www.npmjs.com/);
 - Clone the repository;
 - Enter the folder via the terminal;
 - Download depedencies **npm install**;
