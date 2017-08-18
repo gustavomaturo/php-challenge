@@ -5,12 +5,13 @@ namespace App\Models;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Models\Phone;
+use JsonSerializable;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="person")
  */
-class Person {
+class Person implements JsonSerializable {
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -23,7 +24,7 @@ class Person {
     protected $name;
     
      /**
-    * @ORM\OneToMany(targetEntity="Phone", mappedBy="person", cascade={"persist"})
+    * @ORM\OneToMany(targetEntity="Phone", mappedBy="person", cascade={"persist", "remove"})
     * @var ArrayCollection|Phone[]
     */
     protected $phones;
@@ -49,5 +50,14 @@ class Person {
     public function addPhone(Phone $phone) {
         $phone->setPerson($this);
         $this->phones->add($phone);
+    }
+    
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'name'=> $this->name,
+            'phones'=> $this->phones->toArray()
+        );
     }
 }

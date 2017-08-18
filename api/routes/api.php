@@ -16,7 +16,11 @@ use Illuminate\Http\Request;
 Route::group(array(), function()
 {
     Route::get('people', 'PeopleController@get');
-    Route::get('ship', 'ShipController@index');
+    Route::get('ship', 'ShipController@get');
     
     Route::post('people', 'PeopleController@create');
+    Route::post('ship', 'ShipController@create');
+    
+    Route::delete('ship/{id}', 'ShipController@delete');
+    Route::delete('people/{id}', 'PeopleController@delete');
 });

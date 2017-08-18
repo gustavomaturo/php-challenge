@@ -6,35 +6,74 @@ use Illuminate\Http\Request;
 use File;
 use App\Models\Person;
 use App\Models\Phone;
-
 use EntityManager;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Exception;
 
 class PeopleController extends Controller
 {
-    public function get(Request $request) {
-        return response()->json(['success' => true]);
+    protected $entityManager;
+    
+    public function __construct(ManagerRegistry $em) {
+        $this->entityManager = $em;
+    }
+    
+    public function get(Request $request) {        
+        return response()->json(['success' => true, 
+                                 'data' => $this->entityManager->getRepository('App\Models\Person')->findAll()]);
+    }
+    
+    public function delete($id) {
+        $code = 200;
+        $message = 'Operation succeeded';
+        
+        try {
+            $person = $this->entityManager->getRepository('App\Models\Person')->find($id);
+        
+            if(!$person) {
+                throw new Exception('Not found person');
+            }
+
+            EntityManager::remove($person);
+            EntityManager::flush();
+        
+        } catch(Exception $e) {
+            $code = 400;
+            $message = $e->getMessage();
+        }
+        
+        return response()->json(["message" => $message], $code);
     }
     
     public function create(Request $request) {
-        libxml_use_internal_errors(true); 
-        $people = simplexml_load_string(File::get($request->file('file')->path()));
-        $code = 400;
+        $message = 'Operation succeeded';
+        $code = 200;
         
-        if($people) {
-            foreach($people as $person) {
-                
-                $personModel = new Person((int)$person->personid, $person->personname);
+        try{
+            libxml_use_internal_errors(true); 
+            $people = simplexml_load_string(File::get($request->file('file')->path()));
 
-                foreach((array)$person->phones->phone as $number) {
-                    $personModel->addPhone(new Phone($number));
+            if($people) {
+                foreach($people as $person) {
+
+                    $personModel = new Person((int)$person->personid, $person->personname);
+
+                    foreach((array)$person->phones->phone as $number) {
+                        $personModel->addPhone(new Phone($number));
+                    }
+
+                    EntityManager::persist($personModel);
+                    EntityManager::flush();
+
                 }
-                
-                EntityManager::persist($personModel);
-                EntityManager::flush();
-                
+            } else {
+                throw new Exception('Invalid file');
             }
-            $code = 200;
+        
+        } catch(Exception $e) {
+            $message = $e->getMessage();
+            $code = 400;
         }
-        return response()->json(['success' => false], $code);
+        return response()->json(["message" => $message], $code);
     }
 }

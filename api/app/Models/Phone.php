@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
+use JsonSerializable;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="phone")
  */
-class Phone {
+class Phone implements JsonSerializable {
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -46,5 +47,13 @@ class Phone {
     
     public function setPerson(Person $person) {
         $this->person = $person;
+    }
+    
+    public function jsonSerialize()
+    {
+        return array(
+            'id' => $this->id,
+            'number'=> $this->number
+        );
     }
 }
