@@ -9,6 +9,7 @@
 
 # Project Execution
 
+- Install [Composer](https://getcomposer.org/) e [Laravel](https://laravel.com/);
 - Clone the repository;
 - Enter the folder via the terminal;
 - Download depedencies **composer install**;
