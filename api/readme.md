@@ -5,13 +5,14 @@
 - [Laravel] (https://laravel.com/)
 - [Laravel Doctrine] (http://www.laraveldoctrine.org/)
 - [Composer] (https://getcomposer.org/)
+- [MySQL] (https://www.mysql.com/)
 
 # Project Execution
 
 - Clone the repository;
 - Enter the folder via the terminal;
 - Download depedencies **composer install**;
-- Run script databse **database/challenge.sql**
+- Run script databse **database/challenge.sql - MySQL**
 - Run the project **php artisan serve**;
 - Enter the folder **upload** for examples file upload
 
